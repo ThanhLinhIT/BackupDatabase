@@ -10,7 +10,7 @@ from email.mime.multipart import MIMEMultipart
 
 load_dotenv()
 
-SENDER_EMAI = os.getenv("SENDER_EMAIL")
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 SENDER_PASSWORD = os.getenv("SENDER_PASSWORD")
 RECEIVER_EMAIL= os.getenv("RECEIVER_EMAIL")
 
@@ -46,26 +46,23 @@ def backup_files():
 
         for ten_file in os.listdir(Folder_goc):
             if ten_file.endswith(".sql") or ten_file.endswith(".sqlite3"):
-                duong_dan_nguon = os.path.join(Folder_goc, ten_file)
+                duong_dan_goc = os.path.join(Folder_goc, ten_file)
                 ten_file_backup = f"{thoi_gian}_{ten_file}"
                 duong_dan_backup = os.path.join(Folder_backup, ten_file_backup)
 
-                shutil.copy2(duong_dan_nguon, duong_dan_backup)
+                shutil.copy2(duong_dan_goc, duong_dan_backup)
                 so_file_backup += 1
 
         if so_file_backup > 0:
-            send_email(SENDER_EMAI, RECEIVER_EMAIL, "Backup Thành Công",
-                      f"Đã sao lưu {so_file_backup} file database vào {Folder_backup}", SENDER_PASSWORD)
+            send_email(SENDER_EMAIL, RECEIVER_EMAIL, "Backup Thành Công", f"Đã sao lưu {so_file_backup} file database vào {Folder_backup}", SENDER_PASSWORD)
         else:
-            send_email(SENDER_EMAI, RECEIVER_EMAIL, " Không Có File Để Backup",
-                      "Không tìm thấy file .sql hoặc .sqlite3 trong thư mục nguồn", SENDER_PASSWORD)
-    except Exception as loi:
-        send_email(SENDER_EMAI, RECEIVER_EMAIL, " Backup Thất Bại",
-                  f"Lỗi khi backup: {loi}", SENDER_PASSWORD)
+            send_email(SENDER_EMAIL, RECEIVER_EMAIL, " Không Có File Để Backup", "Kiểm tra lại File .sql hoặc .sqlite3 có tồn tại không", SENDER_PASSWORD)
+    except Exception:
+        send_email(SENDER_EMAIL, RECEIVER_EMAIL, " Backup Thất Bại", f"Đã xảy ra lỗi khi backup", SENDER_PASSWORD)
 
-schedule.every().day.at("09:21").do(backup_files)
+schedule.every().day.at("00:00").do(backup_files)
 
-print("⏰ Đang chờ đến 00:00 để backup database...")
+print("Đúng 0h sẽ backup database")
 
 while True:
     schedule.run_pending()
