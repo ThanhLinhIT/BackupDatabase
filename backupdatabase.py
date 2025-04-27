@@ -47,18 +47,18 @@ def backup_files():
         for ten_file in os.listdir(Folder_goc):
             if ten_file.endswith(('.sql', '.sqlite3')):
                 duong_dan_goc = os.path.join(Folder_goc, ten_file)
-                duong_dan_backup = os.path.join(Folder_backup, f"{thoi_gian}_{ten_file}")
+                duong_dan_backup = os.path.join(Folder_backup, f"{thoi_gian}_backup_{ten_file}")
                 shutil.copy2(duong_dan_goc, duong_dan_backup)
                 so_file_backup += 1
 
         if so_file_backup > 0:
-            send_email(SENDER_EMAIL, RECEIVER_EMAIL, "Backup Thành Công", f"Đã backup {so_file_backup} file database vào {Folder_backup}", SENDER_PASSWORD)
+            send_email(SENDER_EMAIL, RECEIVER_EMAIL, "Backup Thành Công", f"Đã backup {so_file_backup} file database vào {Folder_backup} vào ngày {thoi_gian}", SENDER_PASSWORD)
         else:
             send_email(SENDER_EMAIL, RECEIVER_EMAIL, " Không Có File Để Backup", "Kiểm tra lại File .sql hoặc .sqlite3 có tồn tại không", SENDER_PASSWORD)
-    except Exception:
-        send_email(SENDER_EMAIL, RECEIVER_EMAIL, " Backup Thất Bại", f"Đã xảy ra lỗi khi backup", SENDER_PASSWORD)
+    except Exception as e:
+        send_email(SENDER_EMAIL, RECEIVER_EMAIL, " Backup Thất Bại", f"Đã xảy ra lỗi {e} khi backup", SENDER_PASSWORD)
 
-schedule.every().day.at("10:35").do(backup_files)
+schedule.every().day.at("00:00").do(backup_files)
 
 print("Đúng 0h sẽ backup database")
 
