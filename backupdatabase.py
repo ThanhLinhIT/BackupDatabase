@@ -37,8 +37,7 @@ def send_email(sender, receiver, subject, body, password):
         print(f"Lỗi khi gửi email: {e}")
 
 def backup_files():
-    try:
-        thoi_gian = datetime.now().strftime("%Y%m%d")
+        ngay = datetime.now().strftime("%Y%m%d")
         so_file_backup = 0
 
         if not os.path.exists(Folder_backup):
@@ -47,16 +46,17 @@ def backup_files():
         for ten_file in os.listdir(Folder_goc):
             if ten_file.endswith(('.sql', '.sqlite3')):
                 duong_dan_goc = os.path.join(Folder_goc, ten_file)
-                duong_dan_backup = os.path.join(Folder_backup, f"{thoi_gian}_backup_{ten_file}")
-                shutil.copy2(duong_dan_goc, duong_dan_backup)
-                so_file_backup += 1
+                duong_dan_backup = os.path.join(Folder_backup, f"{ngay}_backup_{ten_file}")
+                try:
+                    shutil.copy(duong_dan_goc, duong_dan_backup)
+                    so_file_backup += 1         
+                except Exception as e:
+                    print(f"Lỗi backup {ten_file}: {e}")
 
         if so_file_backup > 0:
-            send_email(SENDER_EMAIL, RECEIVER_EMAIL, "Backup Thành Công", f"Đã backup {so_file_backup} file database vào {Folder_backup} vào ngày {thoi_gian}", SENDER_PASSWORD)
+            send_email(SENDER_EMAIL, RECEIVER_EMAIL, "Backup Thành Công", f"Đã backup {so_file_backup} file database vào {Folder_backup} vào ngày {ngay}", SENDER_PASSWORD)
         else:
-            send_email(SENDER_EMAIL, RECEIVER_EMAIL, " Không Có File Để Backup", "Kiểm tra lại File .sql hoặc .sqlite3 có tồn tại không", SENDER_PASSWORD)
-    except Exception as e:
-        send_email(SENDER_EMAIL, RECEIVER_EMAIL, " Backup Thất Bại", f"Đã xảy ra lỗi {e} khi backup", SENDER_PASSWORD)
+            send_email(SENDER_EMAIL, RECEIVER_EMAIL, "Backup Thất Bại", "Kiểm tra lại File .sql hoặc .sqlite3 có tồn tại không", SENDER_PASSWORD)
 
 schedule.every().day.at("00:00").do(backup_files)
 
